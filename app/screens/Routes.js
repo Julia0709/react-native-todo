@@ -1,5 +1,5 @@
 import React, { Compornent, Component } from 'react';
-import { View, Route } from 'react-native';
+import { View } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 import LoginPage from './LoginPage';

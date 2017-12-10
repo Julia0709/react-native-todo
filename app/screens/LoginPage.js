@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Button, Text, TextInput, View, StyleSheet } from 'react-native';
 
-import * as firebase from 'firebase';
+import firebase from '../models/Firebase';
+
+
 
 export default class LoginPage extends Component {
 	state = {
@@ -9,21 +11,26 @@ export default class LoginPage extends Component {
 		password: ''
 	};
 	handleLogin = () => {
-        const { email, password } = this.state;
+		console.log('Log in ---------------------------------------');
+		const { email, password } = this.state;
 		firebase
 			.auth()
 			.signInWithEmailAndPassword(email, password)
+			.catch(() => firebase.auth().createUserWithEmailAndPassword(email, password))
 			.then(() => this.props.navigation.navigate('TodoMain'))
-			.catch(() => {
-				firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then(() => this.props.navigation.navigate('TodoMain'))
-                .catch(function(error) {
-					const errorCode = error.code;
-					const errorMessage = error.message;
-				});
+			.catch((error) => {
+				const errorCode = error.code;
+				const errorMessage = error.message;
 			});
 	};
 	render() {
+		// TODO: remove later
+		firebase.auth().onAuthStateChanged((user) => {
+			if (user != null) {
+				console.log(user);
+				this.props.navigation.navigate('TodoMain');
+			}
+		});
 		return (
 			<View style={styles.container}>
 				<Text style={styles.titleText}>Login Page</Text>
@@ -39,27 +46,27 @@ export default class LoginPage extends Component {
 					onChangeText={(password) => this.setState({ password })}
 				/>
 
-				<Button title="Login or Sing Up" onPress={ () => this.handleLogin() } />
+				<Button title="Login or Sing Up" onPress={() => this.handleLogin()} />
 			</View>
 		);
-	}
-}
+	};
+};
 
 const styles = {
 	container: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    titleText: {
-        fontSize: 24,
-        padding: 10,
-        marginTop: 10,
-        marginBottom: 10,        
-    },
+		flex: 1,
+		alignItems: 'center'
+	},
+	titleText: {
+		fontSize: 24,
+		padding: 10,
+		marginTop: 10,
+		marginBottom: 10
+	},
 	textInput: {
-        width: '80%',
-        backgroundColor: '#FFFFFF',
-        padding: 5,
-        marginBottom: 10,
-	}
+		width: '80%',
+		backgroundColor: '#FFFFFF',
+		padding: 5,
+		marginBottom: 10
+	},
 };

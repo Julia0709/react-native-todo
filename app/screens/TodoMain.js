@@ -1,6 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Button } from 'react-native';
 import Moment from 'moment';
+import firebase from '../models/Firebase';
+
 import Card from '../components/card.js';
 
 export default class TodoMain extends React.Component {
@@ -10,6 +12,15 @@ export default class TodoMain extends React.Component {
 			notes: [],
 			note: ''
 		};
+	}
+	componentDidMount() {
+		console.log('ComponentDidMount -------------------------------');
+		console.log(firebase.database);
+		firebase.database().ref('todo').on('value', (snap) => {
+			const notes = snap.val();
+			this.setState([ notes ]);
+		});
+		console.log('state.notes: ' + this.state.notes);
 	}
 	render() {
 		let notes = this.state.notes.map((note, key) => {
@@ -27,7 +38,7 @@ export default class TodoMain extends React.Component {
 						placeholder={' < Notes Here  '}
 						onChangeText={(note) => this.setState({ note })}
 					/>
-					<TouchableOpacity onPress={() => this.handlePress()} style={styles.addButton}>
+					<TouchableOpacity style={styles.addButton} onPress={ () => this.handlePress() }>
 						<Text style={styles.addButtonText}> + </Text>
 					</TouchableOpacity>
 				</View>
@@ -47,11 +58,18 @@ export default class TodoMain extends React.Component {
 		console.log('this is delete' + this.state.notes);
 	}
 	handlePress() {
+		console.log('Todo Button pressed ----------------------------------');
+		// TODO: Implement firebase connection
 		if (this.state.note) {
-			this.state.notes.push({
+			const firebaseRef = firebase.datebase().ref('todo').push().key;
+			firebase.databese().ref('todo').child(firebaseRef).update({
 				date: Moment().format('MMMM Do YYYY'),
 				note: this.state.note
 			});
+			// this.state.notes.push({
+			// 	date: Moment().format('MMMM Do YYYY'),
+			// 	note: this.state.note
+			// });
 			this.setState({ notes: this.state.notes });
 			this.setState({ note: '' });
 			console.log(this.state.notes);
@@ -63,7 +81,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		alignItems: 'center',
-		justifyContent: 'space-between'
+		justifyContent: 'space-between',
 	},
 	header: {
 		paddingBottom: 30,
@@ -72,7 +90,7 @@ const styles = StyleSheet.create({
 		width: '100%',
 		backgroundColor: '#FF4200',
 		justifyContent: 'center',
-		alignItems: 'center'
+		alignItems: 'center',
 	},
 	textInput: {
 		marginLeft: 40,
@@ -82,16 +100,16 @@ const styles = StyleSheet.create({
 		height: 30,
 		paddingLeft: 10,
 		borderLeftWidth: 5,
-		borderLeftColor: 'white'
+		borderLeftColor: 'white',
 	},
 	headerText: {
 		fontSize: 20,
 		color: 'white',
-		fontWeight: '600'
+		fontWeight: '600',
 	},
 	midContainer: {
 		flex: 4,
-		width: '100%'
+		width: '100%',
 	},
 	footer: {
 		backgroundColor: '#242426',
@@ -99,23 +117,24 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		width: '100%',
 		justifyContent: 'center',
-		alignItems: 'center'
+		alignItems: 'center',
 	},
 	addButton: {
 		position: 'absolute',
-		backgroundColor: '#242426',
+		backgroundColor: '#ffffff',
 		zIndex: 12,
-		width: 80,
-		height: 80,
+		width: 60,
+		height: 60,
 		justifyContent: 'center',
 		alignItems: 'center',
 		borderRadius: 50,
-		top: 105,
-		right: 50,
-		elevation: 8
+		top: 35,
+		right: 20,
+		elevation: 8,
 	},
 	addButtonText: {
 		color: '#FA0034',
-		fontSize: 50
-	}
+		fontSize: 36,
+		backgroundColor: 'transparent',
+	},
 });
